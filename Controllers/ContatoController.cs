@@ -19,14 +19,14 @@ namespace AgendaDeContatosApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ContatoModel>>> GetContatos()
         {
-            var contatos = await _repo.GetContatosAsync();
+            var contatos = await _repo.ObterContatosAsync();
             return Ok(contatos);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<ContatoModel>> GetContato(int id)
         {
-            var contato = await _repo.GetContatoByIdAsync(id);
+            var contato = await _repo.ObterContatoPorIdAsync(id);
             if (contato == null)
             {
                 return NotFound();
@@ -37,7 +37,7 @@ namespace AgendaDeContatosApi.Controllers
         [HttpPost]
         public async Task<ActionResult<ContatoModel>> PostContato(ContatoModel contato)
         {
-            await _repo.AddContatoAsync(contato);
+            await _repo.InserirContatoAsync(contato);
             return CreatedAtAction(nameof(GetContato), new { id = contato.Id }, contato);
         }
 
@@ -49,14 +49,14 @@ namespace AgendaDeContatosApi.Controllers
                 return BadRequest();
             }
 
-            await _repo.UpdateContatoAsync(contato);
+            await _repo.AlterarContatoAsync(contato);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteContato(int id)
         {
-            await _repo.DeleteContatoAsync(id);
+            await _repo.DeletarContatoAsync(id);
             return NoContent();
         }
     }

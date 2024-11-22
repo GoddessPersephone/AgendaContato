@@ -3,7 +3,7 @@
 namespace AgendaContatoApi.Models
 {
     [Table("Contatos")]
-    public class ContatoModel
+    public class ContatoModel : ErroModel
     {
         public int Id { get; set; }
         public string Nome { get; set; }
