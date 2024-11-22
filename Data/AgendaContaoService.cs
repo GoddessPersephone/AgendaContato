@@ -50,7 +50,7 @@ namespace AgendaContatoApi.Data
             var modelRetorno = new ContatoModel();
             try
             {
-                if (id >= 0)
+                if (id <= 0)
                     mensagem = "Informe um ID válido!";
 
                 modelRetorno = await _repo.ObterContatoPorIdAsync(id);
