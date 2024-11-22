@@ -13,7 +13,7 @@ builder.Services.AddDbContext<AgendaContext>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<ContatoRepository>();
+builder.Services.AddScoped<AgendaContatoRepository>();
 
 var app = builder.Build();
 

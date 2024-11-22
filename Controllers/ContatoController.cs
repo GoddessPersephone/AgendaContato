@@ -9,13 +9,13 @@ namespace AgendaDeContatosApi.Controllers
 
     public class ContatoController : ControllerBase
     {
-        private readonly ContatoRepository _repo;
+        private readonly AgendaContaoService _service;
         private readonly ILogger<ContatoController> _logger;
         public string mensagem = string.Empty;
 
-        public ContatoController(ContatoRepository repo, ILogger<ContatoController> logger)
+        public ContatoController(AgendaContaoService service, ILogger<ContatoController> logger)
         {
-            _repo = repo;
+            _service = service;
             _logger = logger;
         }
 
@@ -30,7 +30,7 @@ namespace AgendaDeContatosApi.Controllers
                     _logger.LogError(mensagem);
                     return BadRequest(mensagem);
                 }
-                var liContatos = await _repo.ObterContatosAsync();
+                var liContatos = await _service.Obter();
                 if (liContatos is not null && liContatos.Count > 0)
                 {
                     if (!string.IsNullOrEmpty(liContatos[0].ErroMensagem))
@@ -68,7 +68,7 @@ namespace AgendaDeContatosApi.Controllers
                     return BadRequest(mensagem);
                 }
 
-                var contato = await _repo.ObterContatoPorIdAsync(id);
+                var contato = await _service.ObterPorId(id);
 
                 if (contato is not null)
                 {
@@ -106,7 +106,7 @@ namespace AgendaDeContatosApi.Controllers
                     _logger.LogError(mensagem);
                     return BadRequest(mensagem);
                 }
-                var listaModelInserida = await _repo.InserirContatoAsync(liContato);
+                var listaModelInserida = await _service.Inserir(liContato);
 
                 if (listaModelInserida is not null)
                 {
@@ -145,7 +145,7 @@ namespace AgendaDeContatosApi.Controllers
                     _logger.LogError(mensagem);
                     return BadRequest(mensagem);
                 }
-                var modelAlterada = await _repo.AlterarContatoAsync(contato);
+                var modelAlterada = await _service.Alterar(contato);
                 if (modelAlterada is not null)
                 {
                     if (!string.IsNullOrEmpty(modelAlterada.ErroMensagem))
@@ -192,21 +192,20 @@ namespace AgendaDeContatosApi.Controllers
                 }
 
 
-               var dadoExcluido = await _repo.DeletarContatoAsync(id);
+                var dadoExcluido = await _service.Deletar(id);
 
-               /* if (dadoExcluido is not null)
-                {
-                    if (!string.IsNullOrEmpty(dadoExcluido.ErroMensagem))
-                    {
-                        mensagem += dadoExcluido.ErroMensagem;
-                        _logger.LogError(mensagem);
-                        return BadRequest(mensagem);
-                    }
-                    mensagem += "Sucesso!";
-                    _logger.LogInformation(mensagem);
-                    return Ok(mensagem);
-                }*/
-
+                /* if (dadoExcluido is not null)
+                 {
+                     if (!string.IsNullOrEmpty(dadoExcluido.ErroMensagem))
+                     {
+                         mensagem += dadoExcluido.ErroMensagem;
+                         _logger.LogError(mensagem);
+                         return BadRequest(mensagem);
+                     }
+                     mensagem += "Sucesso!";
+                     _logger.LogInformation(mensagem);
+                     return Ok(mensagem);
+                 }*/
 
                 mensagem += "Dados não localizados.";
 

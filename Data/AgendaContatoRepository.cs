@@ -1,17 +1,16 @@
 ﻿using AgendaContatoApi.Data.Interface;
 using AgendaContatoApi.Models;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
 namespace AgendaContatoApi.Data
 {
-    public class ContatoRepository : IContatoRepository
+    public class AgendaContatoRepository : IContatoRepository
     {
         private readonly AgendaContext _context;
-        private readonly ILogger<ContatoRepository> _logger;
+        private readonly ILogger<AgendaContatoRepository> _logger;
 
-        public ContatoRepository(AgendaContext context, ILogger<ContatoRepository> logger)
+        public AgendaContatoRepository(AgendaContext context, ILogger<AgendaContatoRepository> logger)
         {
             _logger = logger;
             _context = context;
