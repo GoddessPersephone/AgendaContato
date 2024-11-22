@@ -51,16 +51,21 @@ namespace AgendaContatoApi.Data
             try
             {
                 if (id <= 0)
-                    mensagem = "Informe um ID válido!";
-
-                modelRetorno = await _repo.ObterContatoPorIdAsync(id);
-                if (modelRetorno is not null)
                 {
-                    if (!string.IsNullOrEmpty(modelRetorno.ErroMensagem))
+                    sucesso = false;
+                    mensagem = "Informe um ID válido!";
+                }
+                if (sucesso)
+                {
+                    modelRetorno = await _repo.ObterContatoPorIdAsync(id);
+                    if (modelRetorno is not null)
                     {
-                        sucesso = false;
-                        mensagem += modelRetorno.ErroMensagem;
-                        _logger.LogError("Erro: " + mensagem);
+                        if (!string.IsNullOrEmpty(modelRetorno.ErroMensagem))
+                        {
+                            sucesso = false;
+                            mensagem += modelRetorno.ErroMensagem;
+                            _logger.LogError("Erro: " + mensagem);
+                        }
                     }
                 }
                 modelErro.ErroMensagem = mensagem;
@@ -88,15 +93,17 @@ namespace AgendaContatoApi.Data
                     _logger.LogError(mensagem);
                 }
                 #endregion
-
-                listaRetorno = await _repo.InserirContatoAsync(liContato);
-                if (listaRetorno is not null && listaRetorno.Count > 0)
+                if (sucesso)
                 {
-                    if (!string.IsNullOrEmpty(listaRetorno[0].ErroMensagem))
+                    listaRetorno = await _repo.InserirContatoAsync(liContato);
+                    if (listaRetorno is not null && listaRetorno.Count > 0)
                     {
-                        sucesso = false;
-                        mensagem += listaRetorno[0].ErroMensagem;
-                        _logger.LogError("Erro: " + mensagem);
+                        if (!string.IsNullOrEmpty(listaRetorno[0].ErroMensagem))
+                        {
+                            sucesso = false;
+                            mensagem += listaRetorno[0].ErroMensagem;
+                            _logger.LogError("Erro: " + mensagem);
+                        }
                     }
                 }
                 listaErro.Add(new ContatoModel { ErroMensagem = mensagem });
@@ -124,13 +131,15 @@ namespace AgendaContatoApi.Data
                     _logger.LogError(mensagem);
                 }
                 #endregion
-
-                modelRetorno = await _repo.AlterarContatoAsync(contato);
-                if (modelRetorno is not null && !string.IsNullOrEmpty(modelRetorno.ErroMensagem))
+                if (sucesso)
                 {
-                    sucesso = false;
-                    mensagem += $" - {contato.ErroMensagem} !";
-                    _logger.LogError(mensagem);
+                    modelRetorno = await _repo.AlterarContatoAsync(contato);
+                    if (modelRetorno is not null && !string.IsNullOrEmpty(modelRetorno.ErroMensagem))
+                    {
+                        sucesso = false;
+                        mensagem += $" - {contato.ErroMensagem} !";
+                        _logger.LogError(mensagem);
+                    }
                 }
                 modelErro.ErroMensagem = mensagem;
                 return sucesso ? modelRetorno : modelErro;
@@ -157,12 +166,15 @@ namespace AgendaContatoApi.Data
                     modelErro.ErroMensagem = mensagem;
                     return modelErro;
                 }
-                modelRetorno = await _repo.DeletarContatoAsync(id);
-                if (modelRetorno is not null && !string.IsNullOrEmpty(modelRetorno.ErroMensagem))
+                if (sucesso)
                 {
-                    sucesso = false;
-                    mensagem += $" - {modelRetorno.ErroMensagem} !";
-                    _logger.LogError(mensagem);
+                    modelRetorno = await _repo.DeletarContatoAsync(id);
+                    if (modelRetorno is not null && !string.IsNullOrEmpty(modelRetorno.ErroMensagem))
+                    {
+                        sucesso = false;
+                        mensagem += $" - {modelRetorno.ErroMensagem} !";
+                        _logger.LogError(mensagem);
+                    }
                 }
                 modelErro.ErroMensagem = mensagem;
                 return sucesso ? modelRetorno : modelErro;
