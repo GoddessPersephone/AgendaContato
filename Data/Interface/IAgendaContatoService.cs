@@ -8,6 +8,6 @@ namespace AgendaContatoApi.Data.Interface
         Task<ContatoModel> ObterPorId(int id);
         Task<List<ContatoModel>> Inserir(List<ContatoModel> liContato);
         Task<ContatoModel> Alterar(ContatoModel contato);
-        Task<bool> Deletar(int id);
+        Task<ContatoModel> Deletar(int id);
     }
 }

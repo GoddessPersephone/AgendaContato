@@ -5,10 +5,12 @@ using System.Reflection;
 
 namespace AgendaContatoApi.Data
 {
-    public class AgendaContatoRepository : IContatoRepository
+    public class AgendaContatoRepository : IAgendaContatoRepository
     {
         private readonly AgendaContext _context;
         private readonly ILogger<AgendaContatoRepository> _logger;
+        public bool sucesso = true;
+        public string mensagem = string.Empty;
 
         public AgendaContatoRepository(AgendaContext context, ILogger<AgendaContatoRepository> logger)
         {
@@ -18,7 +20,6 @@ namespace AgendaContatoApi.Data
 
         public async Task<List<ContatoModel>> ObterContatosAsync()
         {
-            var mensagem = string.Empty;
             var listaErro = new List<ContatoModel>();
             try
             {
@@ -66,10 +67,8 @@ namespace AgendaContatoApi.Data
 
         public async Task<List<ContatoModel>> InserirContatoAsync(List<ContatoModel> liContato)
         {
-            var sucesso = true;
             var listaErro = new List<ContatoModel>();
             using var transacao = _context.Database.BeginTransaction();
-            var mensagem = string.Empty;
             try
             {
                 await _context.TabelaContatos.AddRangeAsync(liContato);
@@ -78,7 +77,7 @@ namespace AgendaContatoApi.Data
                 await transacao.CommitAsync();
                 _logger.LogInformation("Sucesso!");
 
-                return sucesso ? liContato : listaErro;
+                return liContato;
             }
             catch (Exception ex)
             {
@@ -101,7 +100,6 @@ namespace AgendaContatoApi.Data
         {
             var modelErro = new ContatoModel();
             using var transacao = _context.Database.BeginTransaction();
-            var mensagem = string.Empty;
             try
             {
                 _context.TabelaContatos.Update(contato);
@@ -109,9 +107,7 @@ namespace AgendaContatoApi.Data
 
                 await transacao.CommitAsync();
                 _logger.LogInformation("Sucesso!");
-
                 return contato;
-
             }
             catch (Exception ex)
             {
@@ -130,18 +126,19 @@ namespace AgendaContatoApi.Data
             }
         }
 
-        public async Task<bool> DeletarContatoAsync(int id)
+        public async Task<ContatoModel> DeletarContatoAsync(int id)
         {
+            var modelErro = new ContatoModel();
             using var transacao = _context.Database.BeginTransaction();
-            var mensagem = string.Empty;
-            var sucesso = true;
             try
             {
                 var contato = await _context.TabelaContatos.FindAsync(id);
 
                 if (contato is null)
+                {
                     sucesso = false;
-
+                    mensagem = "Contato nao localizado!";
+                }
                 else
                 {
                     _context.TabelaContatos.Remove(contato);
@@ -150,7 +147,9 @@ namespace AgendaContatoApi.Data
                     await transacao.CommitAsync();
                     _logger.LogInformation("Sucesso!");
                 }
-                return sucesso;
+                modelErro.ErroMensagem = mensagem;
+                return sucesso ? contato : modelErro;
+
             }
             catch (Exception ex)
             {
@@ -164,7 +163,8 @@ namespace AgendaContatoApi.Data
 #endif
                 mensagem = $" - {ex}, {ex.Message}!";
                 _logger.LogError($"Erro: {mensagem}");
-                return false;
+                modelErro.ErroMensagem = mensagem;
+                return modelErro;
             }
         }
     }

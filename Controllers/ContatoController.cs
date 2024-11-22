@@ -1,4 +1,5 @@
 ﻿using AgendaContatoApi.Data;
+using AgendaContatoApi.Data.Interface;
 using AgendaContatoApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,11 +10,11 @@ namespace AgendaDeContatosApi.Controllers
 
     public class ContatoController : ControllerBase
     {
-        private readonly AgendaContaoService _service;
+        private readonly IAgendaContatoService _service;
         private readonly ILogger<ContatoController> _logger;
         public string mensagem = string.Empty;
 
-        public ContatoController(AgendaContaoService service, ILogger<ContatoController> logger)
+        public ContatoController(IAgendaContatoService service, ILogger<ContatoController> logger)
         {
             _service = service;
             _logger = logger;

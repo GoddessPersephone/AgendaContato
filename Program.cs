@@ -1,4 +1,5 @@
 using AgendaContatoApi.Data;
+using AgendaContatoApi.Data.Interface;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,7 +14,8 @@ builder.Services.AddDbContext<AgendaContext>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<AgendaContatoRepository>();
+builder.Services.AddScoped<IAgendaContatoRepository, AgendaContatoRepository>();
+builder.Services.AddScoped<IAgendaContatoService, AgendaContaoService>();
 
 var app = builder.Build();
 

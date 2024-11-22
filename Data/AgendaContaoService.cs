@@ -6,12 +6,12 @@ namespace AgendaContatoApi.Data
 {
     public class AgendaContaoService : IAgendaContatoService
     {
-        private readonly AgendaContatoRepository _repo;
+        private readonly IAgendaContatoRepository _repo;
         private readonly ILogger<ContatoController> _logger;
         public string mensagem = string.Empty;
         public bool sucesso = true;
 
-        public AgendaContaoService(AgendaContatoRepository repo, ILogger<ContatoController> logger)
+        public AgendaContaoService(IAgendaContatoRepository repo, ILogger<ContatoController> logger)
         {
             _repo = repo;
             _logger = logger;
@@ -81,7 +81,7 @@ namespace AgendaContatoApi.Data
             try
             {
                 #region Validações 
-                if (liContato.Count() > 0 && !liContato.Any())
+                if (liContato.Count() <= 0 && !liContato.Any())
                 {
                     sucesso = false;
                     mensagem += " - Os campos são de preenchimento obrigatório!";
@@ -112,12 +112,68 @@ namespace AgendaContatoApi.Data
         }
         public async Task<ContatoModel> Alterar(ContatoModel contato)
         {
-            throw new NotImplementedException();
+            var modelErro = new ContatoModel();
+            var modelRetorno = new ContatoModel();
+            try
+            {
+                #region Validações                
+                if (contato.Id == 0)
+                {
+                    sucesso = false;
+                    mensagem += " - O campo ID é de preenchimento obrigatório!";
+                    _logger.LogError(mensagem);
+                }
+                #endregion
+
+                modelRetorno = await _repo.AlterarContatoAsync(contato);
+                if (modelRetorno is not null && !string.IsNullOrEmpty(modelRetorno.ErroMensagem))
+                {
+                    sucesso = false;
+                    mensagem += $" - {contato.ErroMensagem} !";
+                    _logger.LogError(mensagem);
+                }
+                modelErro.ErroMensagem = mensagem;
+                return sucesso ? modelRetorno : modelErro;
+            }
+            catch (Exception ex)
+            {
+                mensagem += $"Erro: {ex}, {ex.Message}!";
+                _logger.LogError(mensagem);
+                modelErro.ErroMensagem = mensagem;
+                return modelErro;
+            }
         }
 
-        public async Task<bool> Deletar(int id)
+        public async Task<ContatoModel> Deletar(int id)
         {
-            throw new NotImplementedException();
+            var modelErro = new ContatoModel();
+            var modelRetorno = new ContatoModel();
+            try
+            {
+                if (id <= 0)
+                {
+                    mensagem += $" - O campo idAnalisePreliminarRisco é de preenchimento obrigatorio!";
+                    _logger.LogError(mensagem);
+                    modelErro.ErroMensagem = mensagem;
+                    return modelErro;
+                }
+                modelRetorno = await _repo.DeletarContatoAsync(id);
+                if (modelRetorno is not null && !string.IsNullOrEmpty(modelRetorno.ErroMensagem))
+                {
+                    sucesso = false;
+                    mensagem += $" - {modelRetorno.ErroMensagem} !";
+                    _logger.LogError(mensagem);
+                }
+                modelErro.ErroMensagem = mensagem;
+                return sucesso ? modelRetorno : modelErro;
+            }
+            catch (Exception ex)
+            {
+                mensagem += $"Erro: {ex}, {ex.Message}";
+                _logger.LogError(mensagem);
+                modelErro.ErroMensagem = mensagem;
+                return modelErro;
+            }
         }
     }
 }
