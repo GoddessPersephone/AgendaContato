@@ -35,10 +35,11 @@ namespace AgendaDeContatosApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ContatoModel>> PostContato(ContatoModel contato)
+        public async Task<ActionResult<ContatoModel>> PostContato(List<ContatoModel> liContato)
         {
-            await _repo.InserirContatoAsync(contato);
-            return CreatedAtAction(nameof(GetContato), new { id = contato.Id }, contato);
+            await _repo.InserirContatoAsync(liContato);
+            //return CreatedAtAction(nameof(GetContato), new { id = liContato.Id }, liContato);
+            return Ok(liContato);
         }
 
         [HttpPut("{id}")]
