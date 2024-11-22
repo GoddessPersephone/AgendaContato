@@ -16,9 +16,9 @@ namespace AgendaContatoApi.Models
         public void Alterar(string nome, string telefone, string email, string endereco)
         {
             Nome = nome.CaixaAlta().RemoveCaracteres();
-            Telefone = telefone;
-            Email = email;
-            Endereco = endereco;
+            Telefone = telefone.RemoveCaracteresDoTelefone();
+            Email = email.TiraEspacos();
+            Endereco = endereco.CaixaAlta().RemoveCaracteres();
         }
     }
 }

@@ -10,55 +10,215 @@ namespace AgendaDeContatosApi.Controllers
     public class ContatoController : ControllerBase
     {
         private readonly ContatoRepository _repo;
+        private readonly ILogger<ContatoController> _logger;
+        public string mensagem = string.Empty;
 
-        public ContatoController(ContatoRepository repo)
+        public ContatoController(ContatoRepository repo, ILogger<ContatoController> logger)
         {
             _repo = repo;
+            _logger = logger;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ContatoModel>>> GetContatos()
+        public async Task<ActionResult<IEnumerable<ContatoModel>>> ObterContatos()
         {
-            var contatos = await _repo.ObterContatosAsync();
-            return Ok(contatos);
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    mensagem += "Erro: Modelo de informação incorreto!";
+                    _logger.LogError(mensagem);
+                    return BadRequest(mensagem);
+                }
+                var liContatos = await _repo.ObterContatosAsync();
+                if (liContatos is not null && liContatos.Count > 0)
+                {
+                    if (!string.IsNullOrEmpty(liContatos[0].ErroMensagem))
+                    {
+                        mensagem += liContatos[0].ErroMensagem;
+                        _logger.LogError(mensagem);
+                        return BadRequest(mensagem);
+                    }
+                    mensagem += "Sucesso!";
+                    _logger.LogInformation(mensagem);
+                    return Ok(liContatos);
+                }
+                mensagem += "Dados não localizados!";
+
+                _logger.LogError(mensagem);
+                return NotFound(mensagem);
+            }
+            catch (Exception ex)
+            {
+                mensagem += $"{ex}, {ex.Message}!";
+                _logger.LogError(mensagem);
+                return BadRequest(mensagem);
+            }
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ContatoModel>> GetContato(int id)
+        public async Task<ActionResult<ContatoModel>> ObterContatoPorId(int id)
         {
-            var contato = await _repo.ObterContatoPorIdAsync(id);
-            if (contato == null)
+            try
             {
-                return NotFound();
+                if (!ModelState.IsValid)
+                {
+                    mensagem += "Erro: Modelo de informação incorreto!";
+                    _logger.LogError(mensagem);
+                    return BadRequest(mensagem);
+                }
+
+                var contato = await _repo.ObterContatoPorIdAsync(id);
+
+                if (contato is not null)
+                {
+                    if (!string.IsNullOrEmpty(contato.ErroMensagem))
+                    {
+                        mensagem += contato.ErroMensagem;
+                        _logger.LogError(mensagem);
+                        return BadRequest(mensagem);
+                    }
+                    mensagem += "Sucesso!";
+                    _logger.LogInformation(mensagem);
+                    return Ok(contato);
+                }
+                mensagem += "Dados não localizados!";
+
+                _logger.LogError(mensagem);
+                return NotFound(mensagem);
             }
-            return Ok(contato);
+            catch (Exception ex)
+            {
+                mensagem += $"{ex}, {ex.Message}!";
+                _logger.LogError(mensagem);
+                return BadRequest(mensagem);
+            }
         }
 
         [HttpPost]
-        public async Task<ActionResult<ContatoModel>> PostContato(List<ContatoModel> liContato)
+        public async Task<ActionResult<List<ContatoModel>>> InserirContatos(List<ContatoModel> liContato)
         {
-            await _repo.InserirContatoAsync(liContato);
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    mensagem += "Erro: Modelo de informação incorreto!";
+                    _logger.LogError(mensagem);
+                    return BadRequest(mensagem);
+                }
+                var listaModelInserida = await _repo.InserirContatoAsync(liContato);
+
+                if (listaModelInserida is not null)
+                {
+                    if (!string.IsNullOrEmpty(listaModelInserida[0].ErroMensagem))
+                    {
+                        mensagem += listaModelInserida[0].ErroMensagem;
+                        _logger.LogError(mensagem);
+                        return BadRequest(mensagem);
+                    }
+                    mensagem += "Sucesso!";
+                    _logger.LogInformation(mensagem);
+                    return Ok(listaModelInserida);
+                }
+                mensagem += "Dados não localizados.";
+
+                _logger.LogError(mensagem);
+                return NotFound(mensagem);
+            }
+            catch (Exception ex)
+            {
+                mensagem += $"{ex}, {ex.Message}!";
+                _logger.LogError(mensagem);
+                return BadRequest(mensagem);
+            }
             //return CreatedAtAction(nameof(GetContato), new { id = liContato.Id }, liContato);
-            return Ok(liContato);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutContato(int id, ContatoModel contato)
+        public async Task<IActionResult> AlterarContato(ContatoModel contato)
         {
-            if (id != contato.Id)
+            try
             {
-                return BadRequest();
-            }
+                if (!ModelState.IsValid)
+                {
+                    mensagem += "Erro: Modelo de informação incorreto!";
+                    _logger.LogError(mensagem);
+                    return BadRequest(mensagem);
+                }
+                var modelAlterada = await _repo.AlterarContatoAsync(contato);
+                if (modelAlterada is not null)
+                {
+                    if (!string.IsNullOrEmpty(modelAlterada.ErroMensagem))
+                    {
+                        mensagem += modelAlterada.ErroMensagem;
+                        _logger.LogError(mensagem);
+                        return BadRequest(mensagem);
+                    }
+                    mensagem += "Sucesso!";
+                    _logger.LogInformation(mensagem);
+                    return Ok(modelAlterada);
+                }
+                mensagem += "Dados não localizados.";
 
-            await _repo.AlterarContatoAsync(contato);
-            return NoContent();
+                _logger.LogError(mensagem);
+                return NotFound(mensagem);
+            }
+            catch (Exception ex)
+            {
+                mensagem += $"{ex}, {ex.Message}!";
+                _logger.LogError(mensagem);
+                return BadRequest(mensagem);
+            }
+            /* if (id != contato.Id)
+             {
+                 return BadRequest();
+             }
+
+             await _repo.AlterarContatoAsync(contato);
+             return NoContent();*/
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteContato(int id)
         {
-            await _repo.DeletarContatoAsync(id);
-            return NoContent();
+            try
+            {
+
+                if (!ModelState.IsValid)
+                {
+                    mensagem += "Erro: Modelo de informação incorreto!";
+                    _logger.LogError(mensagem);
+                    return BadRequest(mensagem);
+                }
+
+
+               var dadoExcluido = await _repo.DeletarContatoAsync(id);
+
+               /* if (dadoExcluido is not null)
+                {
+                    if (!string.IsNullOrEmpty(dadoExcluido.ErroMensagem))
+                    {
+                        mensagem += dadoExcluido.ErroMensagem;
+                        _logger.LogError(mensagem);
+                        return BadRequest(mensagem);
+                    }
+                    mensagem += "Sucesso!";
+                    _logger.LogInformation(mensagem);
+                    return Ok(mensagem);
+                }*/
+
+
+                mensagem += "Dados não localizados.";
+
+                _logger.LogError(mensagem);
+                return NotFound(mensagem);
+            }
+            catch (Exception ex)
+            {
+                mensagem += $"{ex}, {ex.Message}!";
+                _logger.LogError(mensagem);
+                return BadRequest(mensagem);
+            }
         }
     }
 }
