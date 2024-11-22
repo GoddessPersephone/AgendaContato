@@ -1,5 +1,6 @@
 ﻿using AgendaContatoApi.Data.Interface;
 using AgendaContatoApi.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -64,17 +65,21 @@ namespace AgendaContatoApi.Data
             }
         }
 
-        public async Task InserirContatoAsync(ContatoModel contato)
+        public async Task<List<ContatoModel>> InserirContatoAsync(List<ContatoModel> liContato)
         {
+            var sucesso = true;
+            var listaErro = new List<ContatoModel>();
             using var transacao = _context.Database.BeginTransaction();
             var mensagem = string.Empty;
             try
             {
-                await _context.TabelaContatos.AddAsync(contato);
+                await _context.TabelaContatos.AddRangeAsync(liContato);
                 await _context.SaveChangesAsync();
 
                 await transacao.CommitAsync();
                 _logger.LogInformation("Sucesso!");
+
+                return sucesso ? liContato : listaErro;
             }
             catch (Exception ex)
             {
@@ -88,12 +93,14 @@ namespace AgendaContatoApi.Data
 #endif
                 mensagem = $" - {ex}, {ex.Message}!";
                 _logger.LogError($"Erro: {mensagem}");
+                listaErro.Add(new ContatoModel { ErroMensagem = mensagem });
+                return listaErro;
             }
-
         }
 
-        public async Task AlterarContatoAsync(ContatoModel contato)
+        public async Task<ContatoModel> AlterarContatoAsync(ContatoModel contato)
         {
+            var modelErro = new ContatoModel();
             using var transacao = _context.Database.BeginTransaction();
             var mensagem = string.Empty;
             try
@@ -103,6 +110,9 @@ namespace AgendaContatoApi.Data
 
                 await transacao.CommitAsync();
                 _logger.LogInformation("Sucesso!");
+
+                return contato;
+
             }
             catch (Exception ex)
             {
@@ -116,17 +126,24 @@ namespace AgendaContatoApi.Data
 #endif
                 mensagem = $" - {ex}, {ex.Message}!";
                 _logger.LogError($"Erro: {mensagem}");
+                modelErro.ErroMensagem = mensagem;
+                return modelErro;
             }
         }
 
-        public async Task DeletarContatoAsync(int id)
+        public async Task<bool> DeletarContatoAsync(int id)
         {
             using var transacao = _context.Database.BeginTransaction();
             var mensagem = string.Empty;
+            var sucesso = true;
             try
             {
                 var contato = await _context.TabelaContatos.FindAsync(id);
-                if (contato != null)
+
+                if (contato is null)
+                    sucesso = false;
+
+                else
                 {
                     _context.TabelaContatos.Remove(contato);
                     await _context.SaveChangesAsync();
@@ -134,6 +151,7 @@ namespace AgendaContatoApi.Data
                     await transacao.CommitAsync();
                     _logger.LogInformation("Sucesso!");
                 }
+                return sucesso;
             }
             catch (Exception ex)
             {
@@ -147,6 +165,7 @@ namespace AgendaContatoApi.Data
 #endif
                 mensagem = $" - {ex}, {ex.Message}!";
                 _logger.LogError($"Erro: {mensagem}");
+                return false;
             }
         }
     }
