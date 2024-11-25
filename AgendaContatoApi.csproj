@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -14,6 +14,13 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\AgendaContatoApi.Data\AgendaContatoApi.Data.csproj" />
+    <ProjectReference Include="..\src\AgendaContatoApi.Interface\AgendaContatoApi.Interface.csproj" />
+    <ProjectReference Include="..\src\AgendaContatoApi.Repositorio\AgendaContatoApi.Repositorio.csproj" />
+    <ProjectReference Include="..\src\AgendaContatoApi.Service\AgendaContatoApi.Service.csproj" />
   </ItemGroup>
 
 </Project>

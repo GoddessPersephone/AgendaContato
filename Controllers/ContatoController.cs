@@ -1,5 +1,4 @@
-﻿using AgendaContatoApi.Data;
-using AgendaContatoApi.Data.Interface;
+﻿using AgendaContatoApi.Interface;
 using AgendaContatoApi.Models;
 using Microsoft.AspNetCore.Mvc;
 

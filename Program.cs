@@ -1,6 +1,8 @@
 using AgendaContatoApi.Data;
-using AgendaContatoApi.Data.Interface;
+using AgendaContatoApi.Interface;
+using AgendaContatoApi.Repositorio;
 using Microsoft.EntityFrameworkCore;
+using AgendaContatoApi.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
